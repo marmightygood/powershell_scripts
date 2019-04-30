@@ -41,6 +41,7 @@ Login
 Set-AzureRmContext -SubscriptionId $subscription_id
 
 $factory = Get-AzureRmDataFactoryV2 -ResourceGroupName $resource_group_name -Name $factory_name
+Write-Host "Retrieving pipeline runs"
 $runs = Get-AzureRmDataFactoryV2PipelineRun -DataFactory $factory -PipelineName $pipeline_name -LastUpdatedAfter $start_date -LastUpdatedBefore $end_date
 
 $m = $runs | measure
@@ -51,7 +52,7 @@ write-host $m.Count pipeline runs to stop
 foreach($run in $runs) {
 	if ($run.Status -eq "InProgress") {
 		Stop-AzureRmDataFactoryV2PipelineRun -PipelineRunId $run.RunId -ResourceGroupName $resource_group_name -DataFactoryName $factory_name
-		Write-Host Stopped $run.RunId $i of $m.Count
-		$i = $i + 1
+		Write-Host Stopped $run.RunId - reviewed $i of $m.Count
 	}
+	$i = $i + 1
 }
