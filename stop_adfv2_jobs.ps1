@@ -7,7 +7,6 @@ $start_date=""
 $end_date=""
 $pipeline_name=""
 
-#Logs in if necessary - see answer on stack overflow https://stackoverflow.com/questions/28105095/how-to-detect-if-azure-powershell-session-has-expired
 function Login
 {
     $needLogin = $true
@@ -43,9 +42,16 @@ Set-AzureRmContext -SubscriptionId $subscription_id
 
 $factory = Get-AzureRmDataFactoryV2 -ResourceGroupName $resource_group_name -Name $factory_name
 $runs = Get-AzureRmDataFactoryV2PipelineRun -DataFactory $factory -PipelineName $pipeline_name -LastUpdatedAfter $start_date -LastUpdatedBefore $end_date
+
+$m = $runs | measure
+$i=0
+
+write-host $m.Count pipeline runs to stop
+
 foreach($run in $runs) {
 	if ($run.Status -eq "InProgress") {
 		Stop-AzureRmDataFactoryV2PipelineRun -PipelineRunId $run.RunId -ResourceGroupName $resource_group_name -DataFactoryName $factory_name
-		Write-Host Stopped $run.RunId
+		Write-Host Stopped $run.RunId $i of $m.Count
+		$i = $i + 1
 	}
 }
