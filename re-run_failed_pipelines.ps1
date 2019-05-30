@@ -48,13 +48,28 @@ $runs = Get-AzDataFactoryV2PipelineRun -DataFactory $factory -PipelineName $pipe
 
 $m = $runs | measure
 $i=0
+$j=0
 
 write-host $m.Count pipeline runs to re-run
 
 foreach($run in $runs) {
+
+    #Check the pipeline is failed
 	if ($run.Status -eq "Failed") {
+        
+        #Copy the pipeline and parameter dictionary to the new pipeline run
 		Invoke-AzDataFactoryV2Pipeline -PipelineName $run.PipelineName -ResourceGroupName $resource_group_name -DataFactoryName $factory_name -Parameter $run.Parameters
-		Write-Host Re-ran $run.PipelineName - reviewed $i of $m.Count Pars were $run.Parameters
+		
+        #Its probably wise to check against the ADF v2 GUI that the re-runs are actually happening
+        Write-Host Re-ran $run.PipelineName - reviewed $i of $m.Count . Pars were $run.Parameters
+
+        #counting the number of re-runs
+        $j = $j + 1
+        if ($j -gt $limit){
+            Write-Host "Limit $limit re-runs hit, exiting"
+            break
+        }
+
 	}
 	$i = $i + 1
 
