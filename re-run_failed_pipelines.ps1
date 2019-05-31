@@ -6,8 +6,12 @@ $resource_group_name=""
 $start_date=""
 $end_date="2019-06-01"
 $pipeline_name=""
+
+#limits the number of pipelines to re-run
 $limit=200
 $now = Get-Date -Format g
+#Don't reprocess if the pipeline has already failed this many times
+$failureLimit = 5
 
 Import-Module Az.DataFactory
 
