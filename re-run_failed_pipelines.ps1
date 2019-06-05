@@ -86,6 +86,7 @@ foreach($run in $runs) {
             if ($rerunparams -eq $previousparams) {
                 #Write-Host "Found a previous run for $rerunparams $($previousruns.Status)"
                 if ($($previousruns.Status -eq "Succeeded") -or $($previousruns.Status -eq "InProgress")){
+                        Write-Host $previousruns.RunId $previousruns.Status
                         $alreadyRan = 1
                 } else {
                     $prevFailed = $prevFailed + 1
@@ -99,13 +100,13 @@ foreach($run in $runs) {
 		    Invoke-AzDataFactoryV2Pipeline -PipelineName $run.PipelineName -ResourceGroupName $resource_group_name -DataFactoryName $factory_name -Parameter $run.Parameters
 		
             #Its probably wise to check against the ADF v2 GUI that the re-runs are actually happening
-            Write-Host Re-ran $run.PipelineName - reviewed $i of $m.Count . Pars were $run.Parameters. This pipeline previously failed $prevFailed times.
+            Write-Host Re-ran $run.PipelineName - reviewed $i of $m.Count. Pars were $run.Parameters. This pipeline previously failed $prevFailed times.
 
             #counting the number of re-runs
             $j = $j + 1
 
         } else {
-            Write-Host Already re-ran $run.PipelineName - previous failed attempts $prevFailed . Pars were $run.Parameters
+            Write-Host Already re-ran $run.PipelineName - previous failed attempts $prevFailed. Pars were $run.Parameters
         }
 
         if ($j -gt $limit){
@@ -117,3 +118,6 @@ foreach($run in $runs) {
 	$i = $i + 1
 
 }
+
+$checkruns | Export-CSV "c:\Temp\checkruns_$((Get-Date).ToString("yyyyMMddhhmmss")).csv"
+$runs | Export-CSV "c:\Temp\runs_$((Get-Date).ToString("yyyyMMddhhmmss")).csv"
